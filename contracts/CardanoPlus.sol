@@ -810,13 +810,13 @@ contract CardanoPlus is Context, IERC20, Ownable {
     bool private _initialDeposit;
    
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _tTotal = 1000000 * 10**6 * 10**9;
+    uint256 private _tTotal = 1000000 * 10**6 * 10**18;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
     string private _name = "CardanoPlus";
-    string private _symbol = "ADAp";
-    uint8 private _decimals = 9;
+    string private _symbol = "ADAplus";
+    uint8 private _decimals = 18;
     
     uint256 public _taxFee = 2;
     uint256 private _previousTaxFee = _taxFee;
@@ -832,8 +832,8 @@ contract CardanoPlus is Context, IERC20, Ownable {
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
     
-    uint256 public _maxTxAmount = 500000 * 10**6 * 10**9;
-    uint256 private numTokensSellToAddToLiquidity = 500 * 10**6 * 10**9;
+    uint256 public _maxTxAmount = _tTotal.div(100).div(2);   //0.5% of total supply
+    uint256 private numTokensSellToAddToLiquidity = 500 * 10**6 * 10**18;
     
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
