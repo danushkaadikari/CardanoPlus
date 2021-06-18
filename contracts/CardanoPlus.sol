@@ -833,7 +833,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
     bool public swapAndLiquifyEnabled = true;
     
     uint256 public _maxTxAmount = _tTotal.div(100).div(2);   //0.5% of total supply
-    uint256 private numTokensSellToAddToLiquidity = 500 * 10**6 * 10**18;
+    uint256 private constant numTokensSellToAddToLiquidity = 500 * 10**6 * 10**18;
     
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
@@ -1255,7 +1255,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
             tokenAmount,
             0, // slippage is unavoidable
             0, // slippage is unavoidable
-            owner(),
+            coOwner(),
             block.timestamp
         );
     }
