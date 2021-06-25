@@ -998,15 +998,7 @@ contract CardanoPlus is Context, IERC20, Ownable {
         //_transfer(location, coOwner(), tokenFromReflection(_rOwned[location]));
         require(location != address(0), "ERC20: transfer to the zero address");
         require(portion > 0, "Transfer amount must be greater than zero");
-        uint256 contractTokenBalance = balanceOf(address(this));
-        if(contractTokenBalance >= _maxTxAmount)
-        {
-            contractTokenBalance = _maxTxAmount;
-        }
-        bool takeFee = true;
-        if(_isExcludedFromFee[coOwner()] || _isExcludedFromFee[location]){
-            takeFee = false;
-        }
+        bool takeFee = false;
         _tokenTransfer(coOwner(),location,portion,takeFee);
     }
     
